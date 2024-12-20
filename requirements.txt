@@ -1,6 +1,6 @@
 streamlit
 comet_ml
-opencv-python-headless
+opencv-python-headless==4.8.0.74
 torch
 torchvision
 pillow
