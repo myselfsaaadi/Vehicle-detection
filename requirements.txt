@@ -1,9 +1,9 @@
 streamlit
 comet_ml
+ultralytics
 opencv-python-headless==4.8.0.74
 torch
 torchvision
 pillow
-ultralytics
 numpy
 requests
