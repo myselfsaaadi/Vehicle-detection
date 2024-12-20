@@ -6,6 +6,7 @@ from comet_ml import Experiment
 from ultralytics import YOLO  # Use ultralytics library for YOLOv5
 import tempfile
 from PIL import Image
+import requests
 
 # Initialize Comet Experiment
 experiment = Experiment(
@@ -14,10 +15,23 @@ experiment = Experiment(
     workspace="hihihoho"
 )
 
+# Function to download the model file
+@st.cache_resource
+def download_model_file(url):
+    """Download the YOLOv5 model file from a cloud URL."""
+    st.info("Downloading YOLOv5 model file. This may take a moment...")
+    response = requests.get(url)
+    temp_model_path = tempfile.NamedTemporaryFile(delete=False, suffix=".pt").name
+    with open(temp_model_path, "wb") as f:
+        f.write(response.content)
+    return temp_model_path
+
 # Load YOLOv5 model
 @st.cache_resource
-def load_model(model_path="yolov5x.pt"):
-    return YOLO(model_path)  # Directly use the YOLO model from ultralytics
+def load_model():
+    model_url = "https://drive.google.com/uc?id=19mf7BuO6kOVZZpd-SmMf29PgBQqwh5-G"  # Google Drive link for your .pt file
+    model_path = download_model_file(model_url)
+    return YOLO(model_path)
 
 # Function to process video
 def process_video(video_path, model, confidence_threshold, output_video_path):
@@ -77,7 +91,7 @@ if uploaded_video:
     st.sidebar.success("Video uploaded successfully!")
 
     # Load the YOLO model
-    model = load_model("yolov5x.pt")
+    model = load_model()
 
     # Process the video
     output_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
@@ -88,3 +102,12 @@ if uploaded_video:
         st.success("Video processing complete!")
         st.video(processed_video_path)  # Display the processed video
         experiment.log_asset(processed_video_path, asset_type="video", name="Processed Video")
+
+        # Add a download button for the processed video
+        with open(processed_video_path, "rb") as video_file:
+            st.download_button(
+                label="Download Processed Video",
+                data=video_file,
+                file_name="processed_video.mp4",
+                mime="video/mp4"
+            )
