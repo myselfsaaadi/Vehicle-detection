@@ -1,0 +1,7 @@
+streamlit
+comet_ml
+opencv-python-headless
+torch
+torchvision
+pillow
+ultralytics
